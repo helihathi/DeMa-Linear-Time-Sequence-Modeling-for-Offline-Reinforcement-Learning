@@ -1,6 +1,6 @@
 # Training
 
-Experiments used Kaggle GPU T4 x2. The demo uses included weights. Use this guide to train new models.
+Use the [implementation notebook](../00_Training_and_Evaluation.ipynb) for the full training pipeline, or run the scripts below.
 
 ## Files in this folder
 
@@ -17,7 +17,7 @@ DT and DeMa use `train_compare.py` in the repository root.
 
 ## Setup
 
-Enable Internet and select GPU T4 x2. Place the repository files in the working directory and run commands from the repository root.
+Enable Internet and a CUDA GPU. Place the repository files in the working directory and run commands from the repository root.
 
 For DT and DeMa, install:
 
@@ -57,6 +57,8 @@ To train DeMa, change these three lines before running the command:
 %env DROPOUT=0.3
 ```
 
+Before changing the seed, task or model settings, move the previous run's `checkpoints/` and `results/` folders into a separate run folder. The script resumes any checkpoint left in place.
+
 Repeat each model with `SEED=43` and `SEED=44`. A seed controls random initialization and sampling. Three seeds produce three separately trained versions of each model.
 
 | Setting | Meaning | Value |
@@ -81,10 +83,10 @@ Keep the model-specific learning rate and dropout. Change the dataset settings b
 %env DATASET_NAME=D4RL/antmaze/umaze-v1
 %env MEASURED_RANDOM_RETURN=0
 %env DATASET_MEAN_RETURN=438.2091
-%env EVAL_TARGETS=538,438
+%env EVAL_TARGETS=538
 ```
 
-The targets are the dataset's highest episode reward, 538, and rounded average, 438. A target guides the model. The simulator determines the reward it earns.
+The target 538 is the dataset's highest recorded episode reward. A target guides the model. The simulator determines the reward it earns.
 
 When switching back to HalfCheetah, restore:
 
@@ -129,6 +131,6 @@ The [model variants notebook](../02_SER_and_MultiGrainedSSM_vs_DeMa.ipynb) conta
 
 ## Outputs
 
-Sequence-model training writes weights to `checkpoints/` and experiment records to `results/`. CQL writes its summary to `results/cql/` and training logs to `d3rlpy_logs/`. Keep each run's output before starting another run, since checkpoint names can be reused.
+Sequence-model training writes weights to `checkpoints/` and experiment records to `results/`. CQL writes its summary to `results/cql/` and training logs to `d3rlpy_logs/`. Store each run separately before starting the next one.
 
-For W&B tracking, load `WANDB_API_KEY` from Kaggle Secrets into the notebook environment before training. Keep the key out of saved code and outputs.
+For W&B tracking, load `WANDB_API_KEY` from your notebook secrets into the environment before training. Keep the key out of saved code and outputs.

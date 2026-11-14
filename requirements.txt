@@ -10,3 +10,4 @@ mujoco==3.14.0
 wandb==0.31.0
 jupyter
 nbconvert
+pillow==12.3.0

@@ -57,21 +57,20 @@ The requested reward guides action prediction. The reward actually earned comes 
 
 ## Experiments and notebooks
 
-The experiments compare rewards, variation between independently trained models, model size, and computational performance. Ablation studies change a design choice to examine its effect, including input layout, normalization, timestep information, and history handling.
+The experiments compare simulator rewards, goal arrival and training curves. Ablation studies change a design choice to examine its effect, including input layout, normalization and timestep information.
 
-The main reward comparisons use **three independently trained seeds**, with **100 evaluation runs per seed and requested reward target**. The analysis reports average reward, variation between training runs, and median reward.
+The main reward comparisons use **three independently trained seeds**, with **100 evaluation runs per seed and requested reward target**. Tables report average reward and goal arrival; plots also show the three training runs separately.
 
-At the HalfCheetah target of **12,000**, DeMa earns **22% higher average reward** than baseline DT. AntMaze goal arrival matches DT at **81%** for target 538. Adding SER raises DeMa's arrival rate to **86.7%**. Model size, timing, and other results appear alongside these comparisons.
+At the HalfCheetah target of **12,000**, DeMa earns **22% higher average reward** than baseline DT. AntMaze goal arrival matches DT at **81%** for target 538. Adding SER raises DeMa's arrival rate to **86.7%**. The notebooks include training curves and design-change comparisons.
 
 | Notebook | Contents |
 |---|---|
-| [Main comparison](01_DeMa_vs_DecisionTransformer_vs_CQL.ipynb) | DeMa, DT, and CQL; training curves, rewards, model size, and computation |
+| [Training and evaluation](00_Training_and_Evaluation.ipynb) | Data loading, normalization, sequence sampling, model definitions, training and simulator evaluation |
+| [Main comparison](01_DeMa_vs_DecisionTransformer_vs_CQL.ipynb) | DeMa, DT, and CQL; training curves, rewards and cumulative reward curves |
 | [Model variants](02_SER_and_MultiGrainedSSM_vs_DeMa.ipynb) | SER and Multi-Grained SSM compared with their corresponding baselines |
-| [Ablation studies](03_Ablation_Studies.ipynb) | Input layout, normalization, step embeddings, learning curves, and recurrent memory |
+| [Ablation studies](03_Ablation_Studies.ipynb) | Input layout, normalization, step embeddings and learning curves |
 
-The notebooks contain executed tables and plots that can be viewed directly on GitHub. Generated plots use `figures/`. Optional W&B cells load experiment histories. The [training guide](training/README.md) explains the training files and commands.
-
-To rerun analysis, supply the experiment records as `assets/results.zip` or a notebook input. Run the install cell, then the remaining cells in order.
+The three analysis notebooks contain saved tables and plots. The implementation notebook contains the training code, with training cells left unexecuted. Generated plots use `figures/`. Optional W&B cells load experiment histories. The [training guide](training/README.md) explains the training files and commands.
 
 ## Interactive demo
 
@@ -93,6 +92,7 @@ Compared agents use the same initial conditions. AntMaze samples new start and g
 ├── app.py
 ├── run.py
 ├── train_compare.py
+├── 00_Training_and_Evaluation.ipynb
 ├── 01_DeMa_vs_DecisionTransformer_vs_CQL.ipynb
 ├── 02_SER_and_MultiGrainedSSM_vs_DeMa.ipynb
 ├── 03_Ablation_Studies.ipynb
@@ -111,6 +111,8 @@ Compared agents use the same initial conditions. AntMaze samples new start and g
 │   ├── simulation.css
 │   ├── simulation.js
 │   └── half_cheetah_large_floor.xml
+├── data/
+│   └── experiment_records.json
 ├── training/
 │   ├── train_cql.py
 │   ├── cql.py
@@ -147,17 +149,7 @@ python3.13 -m venv venv
 ./venv/bin/python -m streamlit run app.py
 ```
 
-### Linux (Ubuntu / Debian)
-
-```bash
-sudo apt-get update
-sudo apt-get install -y libosmesa6 libgl1
-python3.13 -m venv venv
-./venv/bin/python -m pip install -r requirements.txt
-./venv/bin/python -m streamlit run app.py
-```
-
-Open `http://localhost:8501`. For later launches, repeat your platform's launch command. Stop the server with `Ctrl+C`. The interface uses CPU inference, so a GPU is not required for playback.
+Open `http://localhost:8501`. For later launches, repeat your platform's launch command. Stop the server with `Ctrl+C`. A GPU is not required. Inference uses CUDA when available and CPU otherwise.
 
 To open the notebooks locally:
 
@@ -165,11 +157,11 @@ To open the notebooks locally:
 .\venv\Scripts\python.exe -m jupyter notebook
 ```
 
-On macOS and Linux, use `./venv/bin/python -m jupyter notebook`.
+On macOS, use `./venv/bin/python -m jupyter notebook`.
 
 ### Streamlit deployment
 
-Upload the repository contents, including `assets/models/`. Use `app.py` as the entry point and Python 3.13. Keep `requirements.txt`, `packages.txt`, and `.streamlit/config.toml` at the repository root. `requirements.txt` installs Python dependencies; `packages.txt` supplies the Linux rendering libraries. The app reads the included weights directly, without an external model download.
+Upload the repository contents, including `assets/models/`. Use `app.py` as the entry point and Python 3.13. Keep `requirements.txt`, `packages.txt`, and `.streamlit/config.toml` at the repository root. `requirements.txt` installs Python dependencies; `packages.txt` supplies rendering libraries. The app reads the included weights directly, without an external model download.
 
 ## Training environment
 
@@ -179,7 +171,7 @@ Experiments ran on **Kaggle with GPU T4 x2**, providing two NVIDIA Tesla T4 GPUs
 |---|---|
 | Framework | PyTorch with CUDA |
 | Local development OS | Windows |
-| Training platform / OS | Kaggle / Linux |
+| Training platform | Kaggle |
 | Data access | Minari |
 | Simulation | MuJoCo, Gymnasium, and Gymnasium-Robotics |
 | Experiment tracking | W&B |

@@ -23,3 +23,5 @@ checkpoints/
 wandb/
 d3rlpy_logs/
 *+.log
+
+data/
